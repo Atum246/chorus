@@ -1,0 +1,51 @@
+# 🎵 Chorus Configuration
+
+n8n:
+  baseUrl: "http://localhost:5678"
+  apiKey: "your-n8n-api-key"
+  timeout: 30000
+  retryAttempts: 3
+  retryDelay: 1000
+
+llm:
+  provider: "openai"  # openai | anthropic | ollama | groq | together
+  apiKey: "your-api-key"
+  model: "gpt-4o-mini"
+  maxTokens: 4096
+  temperature: 0.7
+  streaming: true
+
+memory:
+  backend: "sqlite"
+  sqlitePath: "./data/chorus-memory.db"
+  maxShortTermMessages: 50
+  maxLongTermEntries: 10000
+  ttlSeconds: 604800  # 7 days
+
+guardrails:
+  maxExecutionTimeMs: 300000    # 5 minutes
+  maxBudgetPerRun: 10           # $10
+  maxConcurrentRuns: 5
+  allowedDomains: []            # Empty = all allowed
+  blockedDomains: []            # Block specific domains
+  maxTokensPerTurn: 8192
+  requireApproval: []           # Actions that need human approval
+  rateLimits:
+    maxRequestsPerMinute: 60
+    maxTokensPerMinute: 100000
+    maxWorkflowRunsPerHour: 100
+
+observability:
+  logLevel: "info"
+  logFormat: "pretty"
+  enableTracing: false
+  enableMetrics: false
+  metricsPort: 9090
+
+agent:
+  maxSteps: 25
+  maxReflections: 5
+  planningStrategy: "plan-and-execute"  # react | plan-and-execute | tree-of-thought
+  enableMemory: true
+  enableReflection: true
+  enableSelfHealing: true
