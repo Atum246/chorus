@@ -75,8 +75,31 @@ echo [→] Installing Chorus to %CHORUS_DIR%...
 
 if not exist "%CHORUS_DIR%" mkdir "%CHORUS_DIR%"
 
-REM Copy files
-xcopy /E /I /Y . "%CHORUS_DIR%" >nul 2>nul
+REM Check if running from source or download from GitHub
+if exist "package.json" (
+    findstr /C:"chorus" package.json >nul 2>nul
+    if %errorlevel% equ 0 (
+        echo [i] Installing from source...
+        xcopy /E /I /Y . "%CHORUS_DIR%" >nul 2>nul
+        goto :install_deps
+    )
+)
+
+echo [→] Downloading Chorus from GitHub...
+where git >nul 2>nul
+if %errorlevel% neq 0 (
+    echo [✗] Git not found. Please install git first.
+    pause
+    exit /b 1
+)
+git clone https://github.com/dav-chorus/chorus.git "%CHORUS_DIR%"
+if %errorlevel% neq 0 (
+    echo [✗] Failed to clone repository
+    pause
+    exit /b 1
+)
+
+:install_deps
 
 cd /d "%CHORUS_DIR%"
 

@@ -160,15 +160,21 @@ install_chorus() {
   # Create directory
   mkdir -p "$CHORUS_DIR"
 
-  # Copy files (if running from source)
+  # Check if running from source or download from GitHub
   if [ -f "package.json" ] && grep -q '"chorus"' package.json 2>/dev/null; then
     log_info "Installing from source..."
     cp -r . "$CHORUS_DIR/" 2>/dev/null || true
   else
-    log_info "Downloading Chorus..."
-    # In production, this would download from npm or GitHub
-    log_error "Please run this script from the Chorus source directory"
-    exit 1
+    log_info "Downloading Chorus from GitHub..."
+    if command -v git &> /dev/null; then
+      git clone https://github.com/dav-chorus/chorus.git "$CHORUS_DIR" 2>/dev/null || {
+        log_error "Failed to clone repository"
+        exit 1
+      }
+    else
+      log_error "Git not found. Please install git first."
+      exit 1
+    fi
   fi
 
   cd "$CHORUS_DIR"

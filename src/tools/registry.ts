@@ -8,6 +8,7 @@ import { childLogger } from '../core/logger.js';
 import { ToolError } from '../core/errors.js';
 import { eventBus } from '../core/events.js';
 import { SUPERPOWER_TOOLS, executeSuperpowerTool } from './superpowers.js';
+import { BROWSER_TOOLS, executeBrowserTool } from './browser.js';
 import type {
   ToolDefinition,
   ToolParameter,
@@ -532,6 +533,16 @@ export class ToolRegistry {
         definition: toolDef,
         executor: async (inputs, context) => {
           return executeSuperpowerTool(toolDef.name, inputs, context);
+        },
+      });
+    }
+
+    // ─── Browser Tools ────────────────────────────────────────
+    for (const toolDef of BROWSER_TOOLS) {
+      this.register({
+        definition: toolDef,
+        executor: async (inputs, context) => {
+          return executeBrowserTool(toolDef.name, inputs, context);
         },
       });
     }
