@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid';
 import { childLogger } from '../core/logger.js';
 import { ToolError } from '../core/errors.js';
 import { eventBus } from '../core/events.js';
+import { SUPERPOWER_TOOLS, executeSuperpowerTool } from './superpowers.js';
 import type {
   ToolDefinition,
   ToolParameter,
@@ -524,6 +525,16 @@ export class ToolRegistry {
         };
       },
     });
+
+    // ─── Superpower Tools ─────────────────────────────────────
+    for (const toolDef of SUPERPOWER_TOOLS) {
+      this.register({
+        definition: toolDef,
+        executor: async (inputs, context) => {
+          return executeSuperpowerTool(toolDef.name, inputs, context);
+        },
+      });
+    }
   }
 }
 

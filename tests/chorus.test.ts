@@ -312,3 +312,173 @@ describe('MemoryStore', () => {
     expect(stats.totalMemories).toBeGreaterThan(0);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// Superpower Tools Tests
+// ═══════════════════════════════════════════════════════════════
+
+describe('Superpower Tools', () => {
+  let registry: ToolRegistry;
+
+  beforeAll(() => {
+    registry = new ToolRegistry();
+  });
+
+  it('should have all superpower tools registered', () => {
+    const names = registry.getNames();
+    expect(names).toContain('web_search');
+    expect(names).toContain('web_scrape');
+    expect(names).toContain('file_read');
+    expect(names).toContain('file_write');
+    expect(names).toContain('file_list');
+    expect(names).toContain('code_execute');
+    expect(names).toContain('code_eval');
+    expect(names).toContain('json_transform');
+    expect(names).toContain('csv_parse');
+    expect(names).toContain('text_extract');
+    expect(names).toContain('date_calc');
+    expect(names).toContain('uuid_generate');
+    expect(names).toContain('hash_generate');
+    expect(names).toContain('base64_encode');
+    expect(names).toContain('json_parse');
+    expect(names).toContain('system_info');
+    expect(names).toContain('shell_exec');
+    expect(names).toContain('api_call');
+    expect(names).toContain('graphql_query');
+    expect(names).toContain('notify_webhook');
+    expect(names).toContain('notify_slack');
+  });
+
+  it('should execute code_eval', async () => {
+    const result = await registry.execute('code_eval', { expression: '2 + 2 * 3' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect(result.output).toEqual({ expression: '2 + 2 * 3', result: 8 });
+  });
+
+  it('should execute uuid_generate', async () => {
+    const result = await registry.execute('uuid_generate', {}, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  });
+
+  it('should execute hash_generate', async () => {
+    const result = await registry.execute('hash_generate', { text: 'hello', algorithm: 'sha256' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).hash).toHaveLength(64);
+    expect((result.output as any).algorithm).toBe('sha256');
+  });
+
+  it('should execute base64_encode', async () => {
+    const result = await registry.execute('base64_encode', { text: 'hello world', mode: 'encode' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).encoded).toBe('aGVsbG8gd29ybGQ=');
+  });
+
+  it('should execute base64_decode', async () => {
+    const result = await registry.execute('base64_encode', { text: 'aGVsbG8gd29ybGQ=', mode: 'decode' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).decoded).toBe('hello world');
+  });
+
+  it('should execute json_parse', async () => {
+    const result = await registry.execute('json_parse', { text: '{"name":"Alice","age":30}' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).valid).toBe(true);
+    expect((result.output as any).parsed).toEqual({ name: 'Alice', age: 30 });
+  });
+
+  it('should execute json_parse with invalid JSON', async () => {
+    const result = await registry.execute('json_parse', { text: 'not json' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).valid).toBe(false);
+  });
+
+  it('should execute csv_parse', async () => {
+    const result = await registry.execute('csv_parse', { csv: 'name,age\nAlice,30\nBob,25' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).headers).toEqual(['name', 'age']);
+    expect((result.output as any).rows).toHaveLength(2);
+    expect((result.output as any).rows[0]).toEqual({ name: 'Alice', age: '30' });
+  });
+
+  it('should execute json_transform', async () => {
+    const result = await registry.execute('json_transform', {
+      data: { user: { name: 'Alice', address: { city: 'NYC' } } },
+      query: 'user.address.city',
+    }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).result).toBe('NYC');
+  });
+
+  it('should execute date_calc now', async () => {
+    const result = await registry.execute('date_calc', { operation: 'now' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).now).toBeDefined();
+  });
+
+  it('should execute system_info', async () => {
+    const result = await registry.execute('system_info', {}, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).platform).toBeDefined();
+    expect((result.output as any).nodeVersion).toBeDefined();
+  });
+
+  it('should execute code_execute', async () => {
+    const result = await registry.execute('code_execute', { code: 'return 2 + 2;' }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).result).toBe(4);
+  });
+
+  it('should execute text_extract for emails', async () => {
+    const result = await registry.execute('text_extract', {
+      text: 'Contact us at support@example.com or sales@company.org',
+      extractType: 'emails',
+    }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).matches).toContain('support@example.com');
+    expect((result.output as any).matches).toContain('sales@company.org');
+  });
+
+  it('should execute text_extract for URLs', async () => {
+    const result = await registry.execute('text_extract', {
+      text: 'Visit https://example.com and http://test.org/path',
+      extractType: 'urls',
+    }, {
+      agentId: 'test', stepId: 'test', runId: 'test', budgetRemaining: 100, timeoutMs: 30000,
+    });
+    expect(result.success).toBe(true);
+    expect((result.output as any).matches.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('should count total tools correctly', () => {
+    const names = registry.getNames();
+    // 10 n8n/utility tools + 30+ superpower tools
+    expect(names.length).toBeGreaterThan(35);
+  });
+});
