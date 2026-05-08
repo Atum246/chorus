@@ -167,7 +167,7 @@ install_chorus() {
   else
     log_info "Downloading Chorus from GitHub..."
     if command -v git &> /dev/null; then
-      git clone https://github.com/dav-chorus/chorus.git "$CHORUS_DIR" 2>/dev/null || {
+      git clone https://github.com/Atum246/chorus.git "$CHORUS_DIR" 2>/dev/null || {
         log_error "Failed to clone repository"
         exit 1
       }

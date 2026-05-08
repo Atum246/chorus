@@ -92,7 +92,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-git clone https://github.com/dav-chorus/chorus.git "%CHORUS_DIR%"
+git clone https://github.com/Atum246/chorus.git "%CHORUS_DIR%"
 if %errorlevel% neq 0 (
     echo [✗] Failed to clone repository
     pause
